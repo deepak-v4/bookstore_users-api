@@ -1,13 +1,9 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/deepak-v4/BOOKSTORE_USERS_API/app"
-)
+import "github.com/deepak-v4/bookstore_users-api/app"
 
 func main() {
 
 	app.StartApplication()
-	fmt.Println("Hello")
+
 }
