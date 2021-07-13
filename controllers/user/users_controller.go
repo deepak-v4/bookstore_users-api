@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
 	"github.com/deepak-v4/bookstore_users-api/services"
@@ -12,26 +13,8 @@ import (
 
 func CreateUser(c *gin.Context) {
 	var user users.User
-	//fmt.Println("Inside Create user")
-	/*data, err := ioutil.ReadAll(c.Request.Body)
-	if err != nil {
-		//todo
-		return
-	}
-	err = json.Unmarshal(data, &user)
-	if err != nil {
-		//todo
-		return
-	}
-	*/
 	if err := c.ShouldBindJSON(&user); err != nil {
-		//todo return bad request to the caller
-
-		restErr := error.RestErr{
-			Message: "invalid json body",
-			Status:  http.StatusBadRequest,
-			Error:   "bad_request",
-		}
+		restErr := error.NewBadRequest("invalid json body")
 		c.JSON(restErr.Status, restErr)
 		return
 	}
@@ -39,7 +22,7 @@ func CreateUser(c *gin.Context) {
 	fmt.Println(user)
 	result, saveErr := services.CreateUser(user)
 	if saveErr != nil {
-		// todo user creation error
+		c.JSON(saveErr.Status, saveErr)
 		return
 	}
 
@@ -47,7 +30,22 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetUser(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "Implement me !!")
+
+	userId, userErr := strconv.ParseInt(c.Param("id"), 10, 64)
+	if userErr != nil {
+		err := error.NewBadRequest("user id should be a number")
+		c.JSON(err.Status, err)
+		return
+	}
+
+	user, getErr := services.GetUser(userId)
+	if getErr != nil {
+		c.JSON(getErr.Status, getErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+
 }
 
 func SearchUser(c *gin.Context) {

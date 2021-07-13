@@ -10,6 +10,5 @@ func mapUrls() {
 	router.GET("/ping", ping.Ping)
 	router.POST("/users", user.CreateUser)
 	router.GET("/users/:id", user.GetUser)
-	router.GET("/users/search", user.SearchUser)
 
 }
