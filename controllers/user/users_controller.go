@@ -11,6 +11,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func UpdateUser(c *gin.Context) {
+
+	userId, userErr := strconv.ParseInt(c.Param("id"), 10, 64)
+	if userErr != nil {
+		err := errors.NewBadRequest("user id should be a number")
+		c.JSON(err.Status, err)
+		return
+	}
+
+	fmt.Println("Reached here 4")
+	var user users.User
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		resErr := errors.NewBadRequest("invalid json body")
+		c.JSON(resErr.Status, resErr)
+		return
+	}
+
+	user.Id = userId
+	fmt.Println(user)
+
+	result, updateErr := services.UpdateUser(user)
+	if updateErr != nil {
+		c.JSON(updateErr.Status, updateErr)
+		return
+	}
+
+	c.JSON(http.StatusCreated, result)
+}
+
 func CreateUser(c *gin.Context) {
 	var user users.User
 	if err := c.ShouldBindJSON(&user); err != nil {
