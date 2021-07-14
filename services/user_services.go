@@ -1,24 +1,39 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
 	"github.com/deepak-v4/bookstore_users-api/utils/date"
 	"github.com/deepak-v4/bookstore_users-api/utils/errors"
 )
 
-func UpdateUser(user users.User) (*users.User, *errors.RestErr) {
+func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) {
 
 	current, err := GetUser(int64(user.Id))
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("alive !!!!")
-	current.FirstName = user.FirstName
-	current.LastName = user.LastName
-	current.Email = user.Email
 
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	if isPartial {
+		if user.FirstName != "" {
+			current.FirstName = user.FirstName
+		}
+		if user.LastName != "" {
+			current.LastName = user.LastName
+		}
+		if user.Email != "" {
+			current.Email = user.Email
+		}
+
+	} else {
+
+		current.FirstName = user.FirstName
+		current.LastName = user.LastName
+		current.Email = user.Email
+	}
 	if err := current.Update(); err != nil {
 		return nil, err
 	}
@@ -53,4 +68,18 @@ func GetUser(userid int64) (*users.User, *errors.RestErr) {
 
 	return result, nil
 
+}
+
+func DeleteUser(userid int64) *errors.RestErr {
+
+	if userid <= 0 {
+		return errors.NewBadRequest("invalid userid")
+	}
+
+	result := &users.User{Id: userid}
+	if err := result.Delete(); err != nil {
+		return err
+	}
+
+	return nil
 }
