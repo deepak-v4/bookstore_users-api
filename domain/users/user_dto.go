@@ -3,7 +3,7 @@ package users
 import (
 	"strings"
 
-	"github.com/deepak-v4/bookstore_users-api/utils/error"
+	"github.com/deepak-v4/bookstore_users-api/utils/errors"
 )
 
 type User struct {
@@ -14,11 +14,11 @@ type User struct {
 	DateCreated string `json:"date_created"`
 }
 
-func (user *User) Validate() *error.RestErr {
+func (user *User) Validate() *errors.RestErr {
 
 	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
 	if user.Email == "" {
-		return error.NewBadRequest("invalid email address")
+		return errors.NewBadRequest("invalid email address")
 	}
 	return nil
 }

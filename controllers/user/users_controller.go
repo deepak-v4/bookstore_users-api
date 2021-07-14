@@ -7,14 +7,14 @@ import (
 
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
 	"github.com/deepak-v4/bookstore_users-api/services"
-	"github.com/deepak-v4/bookstore_users-api/utils/error"
+	"github.com/deepak-v4/bookstore_users-api/utils/errors"
 	"github.com/gin-gonic/gin"
 )
 
 func CreateUser(c *gin.Context) {
 	var user users.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		restErr := error.NewBadRequest("invalid json body")
+		restErr := errors.NewBadRequest("invalid json body")
 		c.JSON(restErr.Status, restErr)
 		return
 	}
@@ -33,7 +33,7 @@ func GetUser(c *gin.Context) {
 
 	userId, userErr := strconv.ParseInt(c.Param("id"), 10, 64)
 	if userErr != nil {
-		err := error.NewBadRequest("user id should be a number")
+		err := errors.NewBadRequest("user id should be a number")
 		c.JSON(err.Status, err)
 		return
 	}

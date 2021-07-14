@@ -2,10 +2,13 @@ package services
 
 import (
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
-	"github.com/deepak-v4/bookstore_users-api/utils/error"
+	"github.com/deepak-v4/bookstore_users-api/utils/date"
+	"github.com/deepak-v4/bookstore_users-api/utils/errors"
 )
 
-func CreateUser(user users.User) (*users.User, *error.RestErr) {
+func CreateUser(user users.User) (*users.User, *errors.RestErr) {
+
+	user.DateCreated = date.GetTimeString()
 
 	if err := user.Validate(); err != nil {
 		return nil, err
@@ -18,9 +21,9 @@ func CreateUser(user users.User) (*users.User, *error.RestErr) {
 	return &user, nil
 }
 
-func GetUser(userid int64) (*users.User, *error.RestErr) {
+func GetUser(userid int64) (*users.User, *errors.RestErr) {
 	if userid <= 0 {
-		return nil, error.NewBadRequest("invalid userid")
+		return nil, errors.NewBadRequest("invalid userid")
 	}
 
 	result := &users.User{Id: userid}
