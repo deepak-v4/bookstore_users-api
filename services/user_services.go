@@ -83,3 +83,13 @@ func DeleteUser(userid int64) *errors.RestErr {
 
 	return nil
 }
+
+func SearchByStatus(usr_status string) ([]users.User, *errors.RestErr) {
+
+	dao := &users.User{}
+	users, err := dao.FindByStatus(usr_status)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}

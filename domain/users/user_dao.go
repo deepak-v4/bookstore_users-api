@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	queryInsertUser = "INSERT INTO users(first_name,last_name,email,date_created) VALUES(?,?,?,?);"
-	querySelectUser = "SELECT id,first_name,last_name,email,date_created from users where id=?;"
+	queryInsertUser = "INSERT INTO users(first_name,last_name,email,date_created,status) VALUES(?,?,?,?,?);"
+	querySelectUser = "SELECT id,first_name,last_name,email,date_created,status from users where id=?;"
 	queryUpdateUser = "UPDATE users SET first_name=?,last_name=?,email=? WHERE id=?;"
 	queryDeleteUser = "DELETE FROM users where id=?;"
+	querySearchUser = "SELECT id,first_name,last_name,email,date_created,status from users where status=?;"
 )
 
 var (
@@ -29,7 +30,7 @@ func (user *User) Get() *errors.RestErr {
 
 	searchResult := stmt.QueryRow(user.Id)
 
-	if sel_err := searchResult.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated); sel_err != nil {
+	if sel_err := searchResult.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); sel_err != nil {
 		return mysql_utils.ParseError(sel_err)
 
 	}
@@ -44,7 +45,7 @@ func (user *User) Save() *errors.RestErr {
 	}
 	defer stmt.Close()
 
-	insertResult, saveerr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated)
+	insertResult, saveerr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated, user.Status)
 
 	if saveerr != nil {
 		return mysql_utils.ParseError(saveerr)
@@ -97,4 +98,36 @@ func (user *User) Delete() *errors.RestErr {
 
 	return nil
 
+}
+
+func (user *User) FindByStatus(usr_status string) ([]User, *errors.RestErr) {
+	stmt, err := user_db.Client.Prepare(querySearchUser)
+
+	if err != nil {
+		return nil, errors.NewInternalServerError(err.Error())
+	}
+
+	defer stmt.Close()
+
+	rows, search_err := stmt.Query(usr_status)
+	if search_err != nil {
+		return nil, errors.NewInternalServerError(err.Error())
+	}
+
+	defer rows.Close()
+
+	res := make([]User, 0)
+	for rows.Next() {
+		var usr User
+		if err := rows.Scan(&usr.Id, &usr.FirstName, &usr.LastName, &usr.Email, &usr.DateCreated, &usr.Status); err != nil {
+			return nil, errors.NewInternalServerError(err.Error())
+		}
+		res = append(res, usr)
+	}
+
+	if len(res) == 0 {
+		return nil, errors.NewNotFoundError("no users matching found")
+	}
+
+	return res, nil
 }
