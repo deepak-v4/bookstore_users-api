@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	queryInsertUser = "INSERT INTO users(first_name,last_name,email,date_created,status) VALUES(?,?,?,?,?);"
+	queryInsertUser = "INSERT INTO users(first_name,last_name,email,date_created,status,Password) VALUES(?,?,?,?,?,?);"
 	querySelectUser = "SELECT id,first_name,last_name,email,date_created,status from users where id=?;"
 	queryUpdateUser = "UPDATE users SET first_name=?,last_name=?,email=? WHERE id=?;"
 	queryDeleteUser = "DELETE FROM users where id=?;"
@@ -45,7 +45,7 @@ func (user *User) Save() *errors.RestErr {
 	}
 	defer stmt.Close()
 
-	insertResult, saveerr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated, user.Status)
+	insertResult, saveerr := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreated, user.Status, user.Password)
 
 	if saveerr != nil {
 		return mysql_utils.ParseError(saveerr)

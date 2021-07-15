@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
+	cryptoutils "github.com/deepak-v4/bookstore_users-api/utils/crypto_utils"
 	"github.com/deepak-v4/bookstore_users-api/utils/date"
 	"github.com/deepak-v4/bookstore_users-api/utils/errors"
 )
@@ -44,7 +45,7 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 
 	user.DateCreated = date.GetTimeString()
-
+	user.Password = cryptoutils.GetMd5(user.Password)
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
