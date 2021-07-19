@@ -12,6 +12,7 @@ const (
 	queryUpdateUser = "UPDATE users SET first_name=?,last_name=?,email=? WHERE id=?;"
 	queryDeleteUser = "DELETE FROM users where id=?;"
 	querySearchUser = "SELECT id,first_name,last_name,email,date_created,status from users where status=?;"
+	queryLoginUser  = "SELECT id,first_name,last_name,email,date_created,status from users where email=? and Password=?;"
 )
 
 var (
@@ -130,4 +131,23 @@ func (user *User) FindByStatus(usr_status string) ([]User, *errors.RestErr) {
 	}
 
 	return res, nil
+}
+
+func (user *User) Login() *errors.RestErr {
+	stmt, err := user_db.Client.Prepare(queryLoginUser)
+
+	if err != nil {
+		return errors.NewInternalServerError(err.Error())
+	}
+
+	defer stmt.Close()
+
+	searchResult := stmt.QueryRow(user.Email, user.Password)
+	user.Password = ""
+	if sel_err := searchResult.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); sel_err != nil {
+		return mysql_utils.ParseError(sel_err)
+
+	}
+
+	return nil
 }

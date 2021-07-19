@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strings"
+
 	"github.com/deepak-v4/bookstore_users-api/domain/users"
 	cryptoutils "github.com/deepak-v4/bookstore_users-api/utils/crypto_utils"
 	"github.com/deepak-v4/bookstore_users-api/utils/date"
@@ -93,4 +95,18 @@ func SearchByStatus(usr_status string) ([]users.User, *errors.RestErr) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func LoginUser(user users.User) (*users.User, *errors.RestErr) {
+
+	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
+	user.Password = cryptoutils.GetMd5(user.Password)
+
+	result := &users.User{Email: user.Email, Password: user.Password}
+	if err := result.Login(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
 }

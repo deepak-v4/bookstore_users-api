@@ -112,3 +112,22 @@ func Search(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+func Login(c *gin.Context) {
+
+	var user users.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		restErr := errors.NewBadRequest("invalid json body")
+		c.JSON(restErr.Status, restErr)
+		return
+	}
+
+	result, saveErr := services.LoginUser(user)
+	if saveErr != nil {
+		c.JSON(saveErr.Status, saveErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+
+}
